@@ -1,0 +1,48 @@
+h2 {
+    color: black;
+    font-family: 'Arial',  sans-serif;
+    font-size: 20px;
+}
+
+.game_field {
+    display: flex;
+    flex-wrap: wrap;
+    max-height: 70%;
+    border: 3px solid green;
+    padding: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+}
+
+.box {
+    border: 1px solid black;
+    height: 160px;
+    width: 160px;
+    display: inline-flex;
+    margin: -1px;
+    top: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(255, 255, 255);
+}
+
+.turns {
+    display: inline-block;
+    height: 50px;
+    width: 49%;
+    text-align: right;
+}
+
+.round {
+    display: inline-block;
+    height: 50px;
+    text-align: left;
+    width: 50%;
+}
+
+.wrapper {
+    max-width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+}
