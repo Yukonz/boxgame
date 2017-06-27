@@ -1,6 +1,6 @@
 $(document).ready(function(){
     var turns = 15;
-    var numberOfPairs = 3;
+    var numberOfPairs = 13;
     var numberOfBoxes = numberOfPairs * 2;
     var pairColors = [];
     var boxColors = [];
@@ -53,7 +53,7 @@ $(document).ready(function(){
             boxColors[i + numberOfPairs] = pairColors[i];
         }
 
-        if (numberOfBoxes < 24) {
+        if (numberOfBoxes <= 24) {
             for (i = 0; i < numberOfBoxes; i++) {
                 boxes[i] = "<div class='box' style='background-color:" + boxColors[i] + "'></div>";
             }
@@ -135,27 +135,26 @@ $(document).ready(function(){
                 }
             }
         });
-
-        $("#hint").on("click", function(){
-            i = 0;
-            $(".box").each(function(){
-                boxColors_backup[i] = $(this).css("background-color");
-                boxSymbols_backup[i] = $(this).html();
-                $(this).css("background-color", boxColors[i]);
-                $(this).html(boxSymbols[i]);
-                i++;
-            });
-            i = 0;
-            setTimeout(function(){
-                $(".box").each(function(){
-                    $(this).css("background-color", boxColors_backup[i]);
-                    $(this).html(boxSymbols_backup[i]);
-                    i++;
-                });
-            }, 1000);
-        });
     }
 
+    $("#hint").on("click", function(){
+        i = 0;
+        $(".box").each(function(){
+            boxColors_backup[i] = $(this).css("background-color");
+            boxSymbols_backup[i] = $(this).html();
+            $(this).css("background-color", boxColors[i]);
+            $(this).html(boxSymbols[i]);
+            i++;
+        });
+        i = 0;
+        setTimeout(function(){
+            $(".box").each(function(){
+                $(this).css("background-color", boxColors_backup[i]);
+                $(this).html(boxSymbols_backup[i]);
+                i++;
+            });
+        }, 1000);
+    });
 
     function loose()
     {
