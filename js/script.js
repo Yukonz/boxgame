@@ -20,7 +20,7 @@ $(document).ready(function(){
 
     var gameData = {
         turns: 15,
-        numberOfPairs: 15,
+        numberOfPairs: 10,
         numberOfBoxes: null,
         totalTurns: 0,
         boxGuessed: 0,
@@ -88,19 +88,19 @@ $(document).ready(function(){
     function newGame()
     {
         addBoxes();
-        setBoxSize();
+        setTimeout(setBoxSize, 200);
         setTimeout(hideColors, options.hideColorsDelay);
 
         $(".box").on("click", function () {
             if ($(this).css("background-color") !== "rgb(128, 128, 128)") return false;
 
             if (gameData.firstClickColor === false) {
-                nextTurn();
                 gameData.boxIndexFirst = $(this).index();
                 gameData.firstClickColor = gameData.boxColors[gameData.boxIndexFirst][0];
                 gameData.firstClickSymbol = gameData.boxColors[gameData.boxIndexFirst][1];
                 $(this).css({"background-color": gameData.firstClickColor});
                 $(this).children("h3").show();
+                nextTurn();
             } else {
                 gameData.boxIndexSecond = $(this).index();
                 gameData.secondClickColor = gameData.boxColors[gameData.boxIndexSecond][0];
@@ -125,7 +125,7 @@ $(document).ready(function(){
                         $(".box:eq(" + gameData.boxIndexSecond + ")").css({"background-color": "grey"});
                         $(".box:eq(" + gameData.boxIndexFirst + ")").children("h3").hide();
                         $(".box:eq(" + gameData.boxIndexSecond + ")").children("h3").hide();
-                    }, 300);
+                    }, 200);
                 }
 
                 if (gameData.turns === 0) {
@@ -207,7 +207,7 @@ $(document).ready(function(){
     function removeBoxes()
     {
         $(".box").each(function () {
-            $(this).hide(500, function () {
+            $(this).hide(200, function () {
                 $(this).remove();
             });
         });
@@ -272,10 +272,11 @@ $(document).ready(function(){
     });
 
     $(window).resize(function() {
+
         if ($(window).width() > windowData.windowWidth) {
             getGameFieldSize();
 
-            while (((windowData.gameFieldScrollHeight -3) <= windowData.gameFieldInnerHeight) && (windowData.boxHeight <= windowData.boxHeightMax)) {
+            while (((windowData.gameFieldScrollHeight -5) <= windowData.gameFieldInnerHeight) && (windowData.boxHeight <= windowData.boxHeightMax)) {
                 windowData.boxHeight = $(".box").height();
                 windowData.boxHeight++;
 
@@ -287,22 +288,8 @@ $(document).ready(function(){
         }
 
         if ($(window).width() < windowData.windowWidth) {
-            getGameFieldSize();
-
-            if (windowData.gameFieldScrollHeight > windowData.gameFieldInnerHeight) {
-                while (((windowData.gameFieldScrollHeight) >= windowData.gameFieldInnerHeight) && (windowData.boxHeight >= windowData.boxHeightMin)) {
-                    windowData.boxHeight = $(".box").height();
-                    windowData.boxHeight--;
-
-                    windowData.boxWidth = windowData.boxHeight;
-                    $(".box").width(windowData.boxWidth);
-                    $(".box").height(windowData.boxHeight);
-                    windowData.gameFieldScrollHeight = parseInt(document.getElementById('game_field').scrollHeight.toFixed());
-                }
-            }
+            setBoxSize();
         }
-
-        getGameFieldSize();
 
         if (windowData.gameFieldScrollHeight > (windowData.gameFieldInnerHeight)){
             $("#game_field").css({"overflow": "scroll"});

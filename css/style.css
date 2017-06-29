@@ -25,7 +25,7 @@ h1 {
 #game_field {
     display: flex;
     flex-wrap: wrap;
-    border: 3px solid green;
+    border: 1px solid green;
     padding: 10px;
     margin-left: auto;
     margin-right: auto;
@@ -33,6 +33,7 @@ h1 {
     max-width: 70%;
     max-height: 70%;
     overflow: hidden;
+    margin: auto;
 }
 
 .box {
@@ -98,8 +99,10 @@ button {
     text-align: center;
 }
 
-#wrapper {
-    height: 70%;
-    width: 70%;
-    border: 1px solid black;
+.table-header {
+    height: 60px;
+}
+
+.table-footer {
+    height: 60px;
 }
