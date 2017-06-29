@@ -1,212 +1,211 @@
 $(document).ready(function(){
-    var turns = 15;
-    var numberOfPairs = 13;
-    var numberOfBoxes = numberOfPairs * 2;
-    var pairColors = [];
-    var boxColors = [];
-    var boxSymbols = [];
-    var boxColors_backup = [];
-    var boxSymbols_backup = [];
-    var firstClickColor = 0;
-    var secondClickColor = 0;
-    var boxIndexFirst;
-    var boxIndexSecond;
-    var boxGuessed = 0;
-    var round = 1;
-    var i=0;
-    var hideColorsDelay = 2000;
-    var totalTurns = 0;
-    var boxWidth, boxHeight;
-    var windowWidth, windowHeight;
-    var boxes = [];
-    var firstClickSymbol = 1;
-    var secondClickSymbol = 1;
+    var i=0, n=0;
 
+    var options = {
+        hideColorsDelay: 2000,
+        hintDelay: 1000,
+        pairColors: ["rgb(248, 19, 20)",
+                     "rgb(91, 91, 109)",
+                     "rgb(242, 212, 31)",
+                     "rgb(69, 114, 147)",
+                     "rgb(28, 112, 78)",
+                     "rgb(214, 148, 0)",
+                     "rgb(247, 103, 101)",
+                     "rgb(121, 105, 153)",
+                     "rgb(153, 148, 194)",
+                     "rgb(52, 161, 152)",
+                     "rgb(121, 37, 117)",
+                     "rgb(0, 0, 200)"]
+    };
 
-    function add_boxes()
+    var gameData = {
+        turns: 15,
+        numberOfPairs: 15,
+        numberOfBoxes: null,
+        totalTurns: 0,
+        boxGuessed: 0,
+        round: 1,
+        boxColors: [],
+        boxColorsBackup: [],
+        firstClickColor: false,
+        secondClickColor: null,
+        boxIndexFirst: null,
+        boxIndexSecond: null,
+        firstClickSymbol: null,
+        secondClickSymbol: null
+    };
+
+    var windowData = {
+        boxWidth: 150,
+        boxHeight: 150,
+        boxWidthMax: 150,
+        boxHeightMax: 150,
+        boxWidthMin: 45,
+        boxHeightMin: 45,
+        windowWidth: null,
+        windowHeight: null,
+        gameFieldScrollHeight: null,
+        gameFieldInnerHeight: null
+    };
+
+    function addBoxes()
     {
-        pairColors[0] = "rgb(248, 19, 20)";
-        pairColors[1] = "rgb(91, 91, 109)";
-        pairColors[2] = "rgb(242, 212, 31)";
-        pairColors[3] = "rgb(69, 114, 147)";
-        pairColors[4] = "rgb(28, 112, 78)";
-        pairColors[5] = "rgb(214, 148, 0)";
-        pairColors[6] = "rgb(247, 103, 101)";
-        pairColors[7] = "rgb(121, 105, 153)";
-        pairColors[8] = "rgb(153, 148, 194)";
-        pairColors[9] = "rgb(52, 161, 152)";
-        pairColors[10] = "rgb(121, 37, 117)";
-        pairColors[11] = "rgb(0, 0, 200)";
+        options.pairColors = options.pairColors.sort(function() { return 0.5 - Math.random() });
 
-        pairColors = pairColors.sort(function() { return 0.5 - Math.random() });
+        gameData.numberOfBoxes = gameData.numberOfPairs * 2;
 
-        // for (i=0; i<numberOfBoxes; i++){
-        //     var red = parseInt(Math.random() * 255);
-        //     var green = parseInt(Math.random() * 255);
-        //     var blue = parseInt(Math.random() * 255);
-        //
-        //     pairColors[i] = "rgb(" + red + "," + green + "," + blue + ")";
-        // }
-
-        for (i=0; i<numberOfPairs; i++){
-            boxColors[i] = pairColors[i];
-            boxColors[i + numberOfPairs] = pairColors[i];
-        }
-
-        if (numberOfBoxes <= 24) {
-            for (i = 0; i < numberOfBoxes; i++) {
-                boxes[i] = "<div class='box' style='background-color:" + boxColors[i] + "'></div>";
-            }
-        } else {
-            for (i = 0; i < 24; i++) {
-                boxes[i] = "<div class='box' style='background-color:" + boxColors[i] + "'></div>";
-            }
-            for (i = 24; i < numberOfBoxes; i) {
-                boxes[i] = "<div class='box' style='background-color:" + boxColors[i] + "'><h3>@</h3></div>";
-                boxes[i+1] = "<div class='box' style='background-color:" + boxColors[i] + "'><h3>@</h3></div>";
+        if (gameData.numberOfBoxes <= 24) {
+            for (i=0, n=0; i < gameData.numberOfBoxes; i) {
+                gameData.boxColors[i] = [options.pairColors[n], ""];
+                gameData.boxColors[i+1] = [options.pairColors[n], ""];
                 i=i+2;
+                n++;
             }
         }
 
-        boxes = boxes.sort(function() { return 0.5 - Math.random() });
+        if (gameData.numberOfBoxes > 24) {
+            for (i=0, n=0; i < 24; i) {
+                gameData.boxColors[i] = [options.pairColors[n], ""];
+                gameData.boxColors[i+1] = [options.pairColors[n], ""];
+                i=i+2;
+                n++;
+            }
+            for (i=24, n=0; i < gameData.numberOfBoxes; i){
+                gameData.boxColors[i] = [options.pairColors[n], "@"];
+                gameData.boxColors[i+1] = [options.pairColors[n], "@"];
+                i=i+2;
+                n++;
+            }
+        }
 
-        for (i = 0; i < numberOfBoxes; i++) {
-            $(boxes[i]).appendTo('.game_field');
+        gameData.boxColors = gameData.boxColors.sort(function() { return 0.5 - Math.random() });
+
+        for (i = 0; i < gameData.numberOfBoxes; i++) {
+            $("<div class='box' style='background-color:" + gameData.boxColors[i][0] + "'><h3>" + gameData.boxColors[i][1] + "</h3></div>").appendTo('#game_field');
         }
     }
 
-    function new_game() {
-        add_boxes();
-
-        i = 0;
-
-        function hide_colors() {
-            $(".box").each(function () {
-                boxColors[i] = $(this).css("background-color");
-                boxSymbols[i] = $(this).html();
-                i++;
-            });
-
-            $(".box").css({"background-color": "rgb(128, 128, 128)"});
-            $("h3").hide();
-        }
-
-        setTimeout(hide_colors, hideColorsDelay);
+    function newGame()
+    {
+        addBoxes();
+        setBoxSize();
+        setTimeout(hideColors, options.hideColorsDelay);
 
         $(".box").on("click", function () {
             if ($(this).css("background-color") !== "rgb(128, 128, 128)") return false;
 
-            if (firstClickColor === 0) {
-                next_turn();
-                boxIndexFirst = $(this).index();
-                firstClickColor = boxColors[boxIndexFirst];
-                firstClickSymbol = boxSymbols[boxIndexFirst];
-
-                $(this).css({"background-color": firstClickColor});
+            if (gameData.firstClickColor === false) {
+                nextTurn();
+                gameData.boxIndexFirst = $(this).index();
+                gameData.firstClickColor = gameData.boxColors[gameData.boxIndexFirst][0];
+                gameData.firstClickSymbol = gameData.boxColors[gameData.boxIndexFirst][1];
+                $(this).css({"background-color": gameData.firstClickColor});
                 $(this).children("h3").show();
             } else {
-                boxIndexSecond = $(this).index();
-                secondClickColor = boxColors[boxIndexSecond];
-                secondClickSymbol = boxSymbols[boxIndexSecond];
-                $(this).css({"background-color": secondClickColor});
-
-                if ((secondClickColor === firstClickColor) && (firstClickSymbol === secondClickSymbol)) {                                             //Colors are equal
-                    $(this).css({"background-color": secondClickColor});
+                gameData.boxIndexSecond = $(this).index();
+                gameData.secondClickColor = gameData.boxColors[gameData.boxIndexSecond][0];
+                gameData.secondClickSymbol = gameData.boxColors[gameData.boxIndexSecond][1];
+                $(this).css({"background-color": gameData.secondClickColor});
+                $(this).children("h3").show();
+                if ((gameData.secondClickColor === gameData.firstClickColor) && (gameData.firstClickSymbol === gameData.secondClickSymbol)) {                                             //Colors are equal
+                    $(this).css({"background-color": gameData.secondClickColor});
                     $(this).children("h3").show();
-                    firstClickColor = 0;
-                    boxGuessed++;
-                    if (boxGuessed === numberOfPairs) {
-                        round_win();
+                    gameData.firstClickColor = false;
+                    gameData.boxGuessed++;
+                    if (gameData.boxGuessed === gameData.numberOfPairs) {
+                        if (gameData.numberOfBoxes < 30) {
+                            roundWin();
+                        } else gameWin();
                         return false;
                     }
                 } else {                                                                                //Colors are not equal
-                    firstClickColor = 0;
+                    gameData.firstClickColor = false;
                     setTimeout(function () {
-                        $(".box:eq(" + boxIndexFirst + ")").css({"background-color": "grey"});
-                        $(".box:eq(" + boxIndexSecond + ")").css({"background-color": "grey"});
-                        $(".box:eq(" + boxIndexFirst + ")").children("h3").hide();
-                        $(".box:eq(" + boxIndexSecond + ")").children("h3").hide();
+                        $(".box:eq(" + gameData.boxIndexFirst + ")").css({"background-color": "grey"});
+                        $(".box:eq(" + gameData.boxIndexSecond + ")").css({"background-color": "grey"});
+                        $(".box:eq(" + gameData.boxIndexFirst + ")").children("h3").hide();
+                        $(".box:eq(" + gameData.boxIndexSecond + ")").children("h3").hide();
                     }, 300);
                 }
 
-                if (turns === 0) {
-                    loose();
+                if (gameData.turns === 0) {
+                    gameOver();
                     return false;
                 }
             }
         });
     }
 
-    $("#hint").on("click", function(){
-        i = 0;
-        $(".box").each(function(){
-            boxColors_backup[i] = $(this).css("background-color");
-            boxSymbols_backup[i] = $(this).html();
-            $(this).css("background-color", boxColors[i]);
-            $(this).html(boxSymbols[i]);
-            i++;
-        });
-        i = 0;
-        setTimeout(function(){
-            $(".box").each(function(){
-                $(this).css("background-color", boxColors_backup[i]);
-                $(this).html(boxSymbols_backup[i]);
-                i++;
-            });
-        }, 1000);
-    });
-
-    function loose()
+    function gameOver()
     {
         $("#overlay").css({"display": "flex"});
         $("#popup_header").html("GAME OVER");
-        $("#round").html("You achieved " + round + " round of Game");
-        $("#total_turns").html("Total Turns: " + totalTurns);
+        $("#round").html("You achieved " + gameData.round + " round of Game");
+        $("#total_turns").html("Total Turns: " + gameData.totalTurns);
 
         $("#new_game").on("click", function(){
-            numberOfPairs = 3;
-            numberOfBoxes = numberOfPairs * 2;
-            round = 1;
-            $(".round").html("<h2>Game Round: " + round + "</h2>");
-            turns = 15;
-            $(".turns").html("<h2>Turns Left: " + turns + "</h2>");
-            boxGuessed = 0;
-            remove_boxes();
-            new_game();
+            gameData.numberOfPairs = 3;
+            gameData.totalTurns = 0;
+            gameData.boxGuessed = 0;
+            gameData.round = 1;
+            gameData.turns = 15;
+            $(".round").html("<h2>Game Round: " + gameData.round + "</h2>");
+            $(".turns").html("<h2>Turns Left: " + gameData.turns + "</h2>");
             $("#overlay").hide();
-            debugger;
+            removeBoxes();
+            newGame();
         });
     }
 
-    function round_win()
+    function roundWin()
     {
-        round++;
+        gameData.round++;
         $("#overlay").css({"display": "flex"});
         $("#popup_header").html("NEXT ROUND");
-        $("#round").html("You achieved " + round + " round of Game");
-        $("#total_turns").html("Total Turns: " + totalTurns);
+        $("#round").html("You achieved " + gameData.round + " round of Game");
+        $("#total_turns").html("Total Turns: " + gameData.totalTurns);
 
         $("#new_game").on("click", function() {
-            numberOfPairs++;
-            numberOfBoxes = numberOfPairs * 2;
-            turns = parseInt((turns / 3) * 2) + 15;
-            $(".turns").html("<h2>Turns Left: " + turns + "</h2>");
-            boxGuessed = 0;
-            $(".round").html("<h2>Game Round: " + round + "</h2>");
-            remove_boxes();
-            new_game();
+            gameData.numberOfPairs++;
+            gameData.turns = parseInt((gameData.turns / 3) * 2) + 15;
+            gameData.boxGuessed = 0;
+            $(".turns").html("<h2>Turns Left: " + gameData.turns + "</h2>");
+            $(".round").html("<h2>Game Round: " + gameData.round + "</h2>");
             $("#overlay").hide();
+            removeBoxes();
+            newGame();
         });
     }
 
-    function next_turn()
+    function gameWin()
     {
-        turns--;
-        totalTurns++;
-        $(".turns").html("<h2>Turns Left: " + turns + "</h2>");
+        $("#overlay").css({"display": "flex"});
+        $("#popup_header").html("YOU WIN!!!");
+        $("#total_turns").html("Total Turns: " + gameData.totalTurns);
+
+        $("#new_game").on("click", function(){
+            gameData.numberOfPairs = 3;
+            gameData.totalTurns = 0;
+            gameData.boxGuessed = 0;
+            gameData.round = 1;
+            gameData.turns = 15;
+            $(".round").html("<h2>Game Round: " + gameData.round + "</h2>");
+            $(".turns").html("<h2>Turns Left: " + gameData.turns + "</h2>");
+            $("#overlay").hide();
+            removeBoxes();
+            newGame();
+        });
     }
 
-    function remove_boxes(){
+    function nextTurn()
+    {
+        gameData.turns--;
+        gameData.totalTurns++;
+        $(".turns").html("<h2>Turns Left: " + gameData.turns + "</h2>");
+    }
+
+    function removeBoxes()
+    {
         $(".box").each(function () {
             $(this).hide(500, function () {
                 $(this).remove();
@@ -214,40 +213,103 @@ $(document).ready(function(){
         });
     }
 
-    $(window).resize(function() {
-        boxHeight = $(".box").height();
-        while (($(".game_field").height() > ($(window).height())*0.7)&&(boxHeight > 45)) {
-            boxHeight = $(".box").height();
-            boxHeight--;
-            boxWidth = boxHeight;
-            $(".box").width(boxWidth);
-            $(".box").height(boxHeight);
+    function hideColors()
+    {
+        $(".box").css({"background-color": "rgb(128, 128, 128)"});
+        $("h3").hide();
+    }
+
+    function getWindowSize()
+    {
+        windowData.windowHeight = $(window).height();
+        windowData.windowWidth = $(window).width();
+    }
+
+    function setBoxSize()
+    {
+        getGameFieldSize();
+
+        if (windowData.gameFieldScrollHeight > windowData.gameFieldInnerHeight){
+            while (((windowData.gameFieldScrollHeight -3) >= windowData.gameFieldInnerHeight)&&(windowData.boxHeight >= windowData.boxHeightMin)) {
+                windowData.boxHeight = $(".box").height();
+                windowData.boxHeight--;
+
+                windowData.boxWidth = windowData.boxHeight;
+                $(".box").width(windowData.boxWidth);
+                $(".box").height(windowData.boxHeight);
+                windowData.gameFieldScrollHeight = document.getElementById('game_field').scrollHeight.toFixed();
+            }
+
+            if (windowData.gameFieldScrollHeight > (windowData.gameFieldInnerHeight +2)){
+                $("#game_field").css({"overflow": "scroll"});
+            }
         }
+    }
 
-        // while (($(".game_field").height() < ($(window).height())*0.7)&&(boxHeight < 160)) {
-        //     boxHeight = $(".box").height();
-        //     boxHeight++;
-        //     boxWidth = boxHeight;
-        //     $(".box").width(boxWidth);
-        //     $(".box").height(boxHeight);
-        // }
+    function getGameFieldSize()
+    {
+        windowData.gameFieldScrollHeight = parseInt(document.getElementById('game_field').scrollHeight.toFixed());
+        windowData.gameFieldInnerHeight = parseInt($("#game_field").innerHeight().toFixed());
+    }
 
+    $("#hint").on("click", function(){
+        i = 0;
+        $(".box").each(function(){
+            gameData.boxColorsBackup[i] = [$(this).css("background-color"), $(this).html()];
+            $(this).css("background-color", gameData.boxColors[i][0]);
+            $(this).html(gameData.boxColors[i][1]);
+            i++;
+        });
 
-
-
-        // windowWidth = $(window).width();
-        // windowHeight = $(window).height();
-        // boxWidth = (windowWidth * 0.7) / 6;
-        // if (boxWidth < 45) boxWidth = 45;
-        // if (boxWidth > 150) boxWidth = 150;
-        // boxHeight = boxWidth;
-        // $(".box").css({"width": boxWidth, "height": boxHeight});
-        // boxHeight = $(".box").height();
-        // if((boxHeight > (windowWidth * 0.7))&&(boxWidth === 45)) {
-        //     $(".box").css({"overflow": "scroll", "height": "70%"});
-        // }
-
+        setTimeout(function(){
+            i = 0;
+            $(".box").each(function(){
+                $(this).css("background-color",  gameData.boxColorsBackup[i][0]);
+                $(this).html( gameData.boxColorsBackup[i][1]);
+                i++;
+            });
+        }, options.hintDelay);
     });
 
-    new_game();
+    $(window).resize(function() {
+        if ($(window).width() > windowData.windowWidth) {
+            getGameFieldSize();
+
+            while (((windowData.gameFieldScrollHeight -3) <= windowData.gameFieldInnerHeight) && (windowData.boxHeight <= windowData.boxHeightMax)) {
+                windowData.boxHeight = $(".box").height();
+                windowData.boxHeight++;
+
+                windowData.boxWidth = windowData.boxHeight;
+                $(".box").width(windowData.boxWidth);
+                $(".box").height(windowData.boxHeight);
+                windowData.gameFieldScrollHeight = parseInt(document.getElementById('game_field').scrollHeight.toFixed());
+            }
+        }
+
+        if ($(window).width() < windowData.windowWidth) {
+            getGameFieldSize();
+
+            if (windowData.gameFieldScrollHeight > windowData.gameFieldInnerHeight) {
+                while (((windowData.gameFieldScrollHeight) >= windowData.gameFieldInnerHeight) && (windowData.boxHeight >= windowData.boxHeightMin)) {
+                    windowData.boxHeight = $(".box").height();
+                    windowData.boxHeight--;
+
+                    windowData.boxWidth = windowData.boxHeight;
+                    $(".box").width(windowData.boxWidth);
+                    $(".box").height(windowData.boxHeight);
+                    windowData.gameFieldScrollHeight = parseInt(document.getElementById('game_field').scrollHeight.toFixed());
+                }
+            }
+        }
+
+        getGameFieldSize();
+
+        if (windowData.gameFieldScrollHeight > (windowData.gameFieldInnerHeight)){
+            $("#game_field").css({"overflow": "scroll"});
+        } else $("#game_field").css({"overflow": "hidden"});
+
+        getWindowSize();
+    });
+
+    newGame();
 });

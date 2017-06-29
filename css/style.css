@@ -5,7 +5,7 @@ html, body {
 }
 
 h3 {
-    font-size: 50px;
+    font-size: 40px;
     color:  white;
 }
 
@@ -22,7 +22,7 @@ h1 {
     font-size: 20px;
 }
 
-.game_field {
+#game_field {
     display: flex;
     flex-wrap: wrap;
     border: 3px solid green;
@@ -31,8 +31,8 @@ h1 {
     margin-right: auto;
     justify-content: center;
     max-width: 70%;
-    /*min-height: 70%;*/
-    /*overflow: hidden;*/
+    max-height: 70%;
+    overflow: hidden;
 }
 
 .box {
@@ -46,7 +46,7 @@ h1 {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    font-size: 50px;
+    font-size: 40px;
     color:  white;
 }
 
@@ -92,6 +92,10 @@ button {
     border: 2px solid grey;
     background-color: white;
     margin-top: 10px;
+}
+
+#hint_button {
+    text-align: center;
 }
 
 #wrapper {
