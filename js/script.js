@@ -15,12 +15,13 @@ $(document).ready(function(){
                      "rgb(153, 148, 194)",
                      "rgb(52, 161, 152)",
                      "rgb(121, 37, 117)",
-                     "rgb(0, 0, 200)"]
+                     "rgb(0, 0, 200)"],
+        hideColor: "rgb(128, 128, 128)"
     };
 
     var gameData = {
         turns: 15,
-        numberOfPairs: 10,
+        numberOfPairs: 3,
         numberOfBoxes: null,
         totalTurns: 0,
         boxGuessed: 0,
@@ -32,7 +33,8 @@ $(document).ready(function(){
         boxIndexFirst: null,
         boxIndexSecond: null,
         firstClickSymbol: null,
-        secondClickSymbol: null
+        secondClickSymbol: null,
+        numberOfColors: null
     };
 
     var windowData = {
@@ -53,36 +55,29 @@ $(document).ready(function(){
         options.pairColors = options.pairColors.sort(function() { return 0.5 - Math.random() });
 
         gameData.numberOfBoxes = gameData.numberOfPairs * 2;
+        gameData.numberOfColors = options.pairColors.length;
 
-        if (gameData.numberOfBoxes <= 24) {
-            for (i=0, n=0; i < gameData.numberOfBoxes; i) {
+        if (gameData.numberOfBoxes <= (gameData.numberOfColors * 2)) {
+            for (i=0, n=0; i < gameData.numberOfBoxes; i=i+2, n++) {
                 gameData.boxColors[i] = [options.pairColors[n], ""];
                 gameData.boxColors[i+1] = [options.pairColors[n], ""];
-                i=i+2;
-                n++;
             }
-        }
-
-        if (gameData.numberOfBoxes > 24) {
-            for (i=0, n=0; i < 24; i) {
+        } else {
+            for (i=0, n=0; i < (gameData.numberOfColors * 2); i=i+2, n++) {
                 gameData.boxColors[i] = [options.pairColors[n], ""];
                 gameData.boxColors[i+1] = [options.pairColors[n], ""];
-                i=i+2;
-                n++;
             }
-            for (i=24, n=0; i < gameData.numberOfBoxes; i){
+            for (i=(gameData.numberOfColors * 2), n=0; i < gameData.numberOfBoxes; i=i+2, n++){
                 gameData.boxColors[i] = [options.pairColors[n], "@"];
                 gameData.boxColors[i+1] = [options.pairColors[n], "@"];
-                i=i+2;
-                n++;
             }
         }
 
         gameData.boxColors = gameData.boxColors.sort(function() { return 0.5 - Math.random() });
 
-        for (i = 0; i < gameData.numberOfBoxes; i++) {
-            $("<div class='box' style='background-color:" + gameData.boxColors[i][0] + "'><h3>" + gameData.boxColors[i][1] + "</h3></div>").appendTo('#game_field');
-        }
+        gameData.boxColors.forEach(function(box){
+            $("<div class='box' style='background-color:" + box[0] + "'><h3>" + box[1] + "</h3></div>").appendTo('#game_field');
+        });
     }
 
     function newGame()
@@ -92,7 +87,7 @@ $(document).ready(function(){
         setTimeout(hideColors, options.hideColorsDelay);
 
         $(".box").on("click", function () {
-            if ($(this).css("background-color") !== "rgb(128, 128, 128)") return false;
+            if ($(this).css("background-color") !== options.hideColor) return false;
 
             if (gameData.firstClickColor === false) {
                 gameData.boxIndexFirst = $(this).index();
@@ -206,8 +201,8 @@ $(document).ready(function(){
 
     function removeBoxes()
     {
-        $(".box").each(function () {
-            $(this).hide(200, function () {
+        $(".box").each(function(){
+            $(this).hide(200, function(){
                 $(this).remove();
             });
         });
@@ -215,7 +210,7 @@ $(document).ready(function(){
 
     function hideColors()
     {
-        $(".box").css({"background-color": "rgb(128, 128, 128)"});
+        $(".box").css({"background-color": options.hideColor});
         $("h3").hide();
     }
 
@@ -271,12 +266,12 @@ $(document).ready(function(){
         }, options.hintDelay);
     });
 
-    $(window).resize(function() {
+    $(window).resize(function(){
 
         if ($(window).width() > windowData.windowWidth) {
             getGameFieldSize();
 
-            while (((windowData.gameFieldScrollHeight -5) <= windowData.gameFieldInnerHeight) && (windowData.boxHeight <= windowData.boxHeightMax)) {
+            while (((windowData.gameFieldScrollHeight -2) <= windowData.gameFieldInnerHeight) && (windowData.boxHeight <= windowData.boxHeightMax)) {
                 windowData.boxHeight = $(".box").height();
                 windowData.boxHeight++;
 
@@ -291,7 +286,9 @@ $(document).ready(function(){
             setBoxSize();
         }
 
-        if (windowData.gameFieldScrollHeight > (windowData.gameFieldInnerHeight)){
+        getGameFieldSize();
+
+        if ((windowData.gameFieldScrollHeight -5) > (windowData.gameFieldInnerHeight)){
             $("#game_field").css({"overflow": "scroll"});
         } else $("#game_field").css({"overflow": "hidden"});
 
